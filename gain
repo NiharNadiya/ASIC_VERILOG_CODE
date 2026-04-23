@@ -1,0 +1,9 @@
+module gain_block #(parameter WIDTH = 16)(
+    input signed [WIDTH-1:0] in,
+    input signed [7:0] gain,
+    output signed [WIDTH-1:0] out
+);
+
+    assign out = (in * gain) >>> 4; // scaled
+
+endmodule
