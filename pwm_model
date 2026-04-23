@@ -1,4 +1,4 @@
-module pwm_dac (
+module pwm_dac(
     input clk,
     input rst,
     input [7:0] data_in,
@@ -17,10 +17,8 @@ module pwm_dac (
     always @(posedge clk or posedge rst) begin
         if (rst)
             pwm_out <= 0;
-        else if (counter < data_in)
-            pwm_out <= 1;
         else
-            pwm_out <= 0;
+            pwm_out <= (counter < data_in);
     end
 
 endmodule
