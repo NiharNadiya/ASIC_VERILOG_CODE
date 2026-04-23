@@ -1,0 +1,58 @@
+module fir_filter #(
+    parameter N = 8,              // number of taps
+    parameter WIDTH = 16
+)(
+    input clk,
+    input rst,
+    input signed [WIDTH-1:0] x_in,
+    output reg signed [WIDTH-1:0] y_out
+);
+
+    // Shift register
+    reg signed [WIDTH-1:0] shift_reg [0:N-1];
+
+    // Coefficients (constant → synthesis friendly)
+    reg signed [WIDTH-1:0] h [0:N-1];
+
+    integer i;
+
+    // Initialize coefficients (replace with your values)
+    always @(*) begin
+        h[0] = 16'd2;
+        h[1] = 16'd4;
+        h[2] = 16'd6;
+        h[3] = 16'd8;
+        h[4] = 16'd8;
+        h[5] = 16'd6;
+        h[6] = 16'd4;
+        h[7] = 16'd2;
+    end
+
+    // Shift register logic
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (i = 0; i < N; i = i + 1)
+                shift_reg[i] <= 0;
+        end else begin
+            shift_reg[0] <= x_in;
+            for (i = 1; i < N; i = i + 1)
+                shift_reg[i] <= shift_reg[i-1];
+        end
+    end
+
+    // MAC operation (Multiply-Accumulate)
+    reg signed [2*WIDTH-1:0] acc;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            y_out <= 0;
+        end else begin
+            acc = 0;
+            for (i = 0; i < N; i = i + 1)
+                acc = acc + shift_reg[i] * h[i];
+
+            y_out <= acc[WIDTH-1:0]; // truncate
+        end
+    end
+
+endmodule
